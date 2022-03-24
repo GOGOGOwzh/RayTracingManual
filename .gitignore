@@ -1,0 +1,17 @@
+
+*.db
+*.db-shm
+*.db-wal
+.vs/RayTracingManual/v16/.suo
+*.opendb
+*.ipch
+*.obj
+*.tlog
+*.log
+*.recipe
+*.ilk
+*.txt
+*.idb
+*.pdb
+*.iobj
+*.ipdb

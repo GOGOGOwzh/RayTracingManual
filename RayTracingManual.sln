@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPMFormat", "PPMFormat\PPMF
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonteCarloPathTracing", "MonteCarloPathTracing\MonteCarloPathTracing.vcxproj", "{EB720ACE-4CDF-4B24-98ED-5B614821941F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealTimeRayTracing", "RealTimeRayTracing\RealTimeRayTracing.vcxproj", "{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{EB720ACE-4CDF-4B24-98ED-5B614821941F}.Release|x64.Build.0 = Release|x64
 		{EB720ACE-4CDF-4B24-98ED-5B614821941F}.Release|x86.ActiveCfg = Release|Win32
 		{EB720ACE-4CDF-4B24-98ED-5B614821941F}.Release|x86.Build.0 = Release|Win32
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Debug|x64.ActiveCfg = Debug|x64
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Debug|x64.Build.0 = Debug|x64
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Debug|x86.ActiveCfg = Debug|Win32
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Debug|x86.Build.0 = Debug|Win32
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Release|x64.ActiveCfg = Release|x64
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Release|x64.Build.0 = Release|x64
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Release|x86.ActiveCfg = Release|Win32
+		{0CB287CF-C782-4EE2-84AA-E5CAF9A5EEF8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
