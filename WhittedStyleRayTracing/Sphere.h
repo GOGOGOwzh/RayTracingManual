@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Sphere.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Sphere.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/20 15:00
 *****************************************************************************/

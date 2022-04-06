@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\BVH.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\BVH.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/28 14:52
 *****************************************************************************/

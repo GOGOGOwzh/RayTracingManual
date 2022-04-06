@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Triangle.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Triangle.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/29 10:17
 *****************************************************************************/

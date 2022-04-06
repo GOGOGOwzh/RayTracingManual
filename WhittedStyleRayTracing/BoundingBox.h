@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\BoundingBox.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\BoundingBox.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/27 10:37
 *****************************************************************************/

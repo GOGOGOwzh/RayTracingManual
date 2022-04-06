@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Material.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Material.h
 * @Author : Wang ZhiHao
 * @Date : 2021/9/14 16:01
 *****************************************************************************/

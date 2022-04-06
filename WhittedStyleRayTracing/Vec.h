@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Vec.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Vec.h
 * @Author : Wang ZhiHao
 * @Date : 2021/9/14 14:15
 *****************************************************************************/

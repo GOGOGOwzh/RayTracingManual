@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Camera.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\Camera.h
 * @Author : Wang ZhiHao
 * @Date : 2021/9/14 16:15
 *****************************************************************************/

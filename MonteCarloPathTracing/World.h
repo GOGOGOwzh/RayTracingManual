@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\World.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\World.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/13 11:51
 *****************************************************************************/

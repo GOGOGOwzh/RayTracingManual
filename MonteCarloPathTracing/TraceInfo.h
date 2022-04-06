@@ -1,5 +1,5 @@
 /*****************************************************************************
-* @File : D:\Games101\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\TraceInfo.h
+* @File : D:\MyGit\RayTracingManual\RayTracingManual\WhittedStyleRayTracing\TraceInfo.h
 * @Author : Wang ZhiHao
 * @Date : 2022/1/13 15:16
 *****************************************************************************/
