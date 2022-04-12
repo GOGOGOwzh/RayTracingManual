@@ -63,8 +63,8 @@ protected:
 	std::shared_ptr<Renderer> m_Renderer;
 
 protected:
-	float  m_Width = 960.0f;
-	float  m_Height = 960.0f;
+	float  m_Width = 16 * 40.0f;
+	float  m_Height =16 * 40.0f;
 
 	std::int64_t m_PrevTime = 0;
 

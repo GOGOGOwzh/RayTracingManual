@@ -19,6 +19,9 @@
     <Filter Include="Helper\DirectXTK">
       <UniqueIdentifier>{23e98e05-7d39-47c0-8bbc-5691df0fd1d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{f82bf680-55f7-4e28-9e28-bfa1a831836e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RealTimeRayTracing.cpp">
@@ -47,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXTK\SimpleMath.cpp">
+      <Filter>Helper\DirectXTK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,5 +89,30 @@
     <ClInclude Include="Renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DirectXTK\SimpleMath.h">
+      <Filter>Helper\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="CSObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DirectXTK\SimpleMath.inl">
+      <Filter>Helper\DirectXTK</Filter>
+    </None>
+    <None Include="Shaders\csInl.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\ComputeShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

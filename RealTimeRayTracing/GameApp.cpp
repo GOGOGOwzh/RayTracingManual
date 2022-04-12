@@ -71,14 +71,14 @@ void GameApp::Init()
 	m_D3DClass = std::make_shared<D3DClass>();
 	m_D3DClass->Init();
 
-	m_Renderer = std::make_shared<Renderer>();
-	m_Renderer->Init();
-
 	m_Camera = std::make_shared<Camera>();
 	m_Camera->Init();
 
 	m_World = std::make_shared<World>();
 	m_World->Init();
+
+	m_Renderer = std::make_shared<Renderer>();
+	m_Renderer->Init();
 }
 
 void GameApp::Run()

@@ -4,9 +4,10 @@
 * @Date : 2022/3/24 15:53
 *****************************************************************************/
 
-#include <iostream>
+#include "GameApp.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    GameApp::Instance().Init();
+    GameApp::Instance().Run();
 }

@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\DirectXTK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\DirectXTK;.\Shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\DirectXTK</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\DirectXTK;.\Shaders</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +146,7 @@
     <ClCompile Include="DirectXTK\Keyboard.cpp" />
     <ClCompile Include="DirectXTK\Mouse.cpp" />
     <ClCompile Include="DirectXTK\ScreenGrab.cpp" />
+    <ClCompile Include="DirectXTK\SimpleMath.cpp" />
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="RealTimeRayTracing.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -154,15 +155,38 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="CSObject.h" />
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="DirectXTK\Keyboard.h" />
     <ClInclude Include="DirectXTK\LoaderHelpers.h" />
     <ClInclude Include="DirectXTK\Mouse.h" />
     <ClInclude Include="DirectXTK\PlatformHelpers.h" />
     <ClInclude Include="DirectXTK\ScreenGrab.h" />
+    <ClInclude Include="DirectXTK\SimpleMath.h" />
     <ClInclude Include="GameApp.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DirectXTK\SimpleMath.inl" />
+    <None Include="Shaders\csInl.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\ComputeShader.hlsl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

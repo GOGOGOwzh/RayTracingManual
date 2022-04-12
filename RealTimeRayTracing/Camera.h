@@ -15,5 +15,62 @@ public:
 	void Tick(DWORD deltaTime);
 	void Render();
 
+	void SetSize(float width, float height)
+	{
+		m_Width = width;
+		m_Height = height;
+	}
+
+	void SetPosition(const Vec3& pos) {
+		m_Position = pos;
+	}
+
+	void SetFov(const float& fov) {
+		m_Fov = fov;
+	}
+
+	void SetTarget(const Vec3& target) {
+		m_Target = target;
+	}
+
+	void SetUp(const Vec3& up) {
+		m_Up = up;
+	}
+
+	Mat4x4 GetVPInvert();
+
+	Vec3 GetCameraPosition();
+
+protected:
+	void UpdateProjectionMat();
+	void UpdateViewMat();
+	void UpdateCameraCtrl(DWORD deltaTime);
+	void DoYaw(DWORD deltaTime);
+	void DoPitch(DWORD deltaTime);
+
+	Vec3 GetDirFromYawPitch();
+
+protected:
+	float m_LastMousePosX = 0.0f;
+	float m_LastMousePosY = 0.0f;
+
+	float m_Yaw = 0.0f;
+	float m_Pitch = 0.0f;
+	float m_MoveSpeed = 1.0f;
+	float m_YawPitchSpeed = 1.0f;
+
+	float m_NearPlane = 0.1f;
+	float m_FarPlane = 1000.0f;
+	float m_Width;
+	float m_Height;
+	float m_Fov = 45.0f;
+
+	Vec3 m_Up = Vec3(0, 1, 0);
+	Vec3 m_Position = Vec3(0,0,5);
+	Vec3 m_Target = Vec3(0, 0, 0);
+	Vec3 m_Dir = Vec3(0, 0, 1);
+
+	Mat4x4 m_ViewMat;
+	Mat4x4 m_ProjectionMat;
 };
 

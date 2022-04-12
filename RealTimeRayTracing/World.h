@@ -6,6 +6,7 @@
 
 #pragma once
 #include "Common.h"
+#include "CSObject.h"
 
 class World
 {
@@ -15,5 +16,17 @@ public:
 	void Tick(DWORD deltaTime);
 	void Render();
 
+public:
+	int GetSphereByteWidth();
+	int GetSphereStride();
+
+	std::vector<Sphere>& GetSphereVec();
+
+protected:
+	void CreateWorld();
+	void CreateSphere();
+
+protected:
+	std::vector<Sphere> m_VecSphere;
 };
 
