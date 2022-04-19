@@ -8,6 +8,7 @@
 #include "Common.h"
 #include "CSObject.h"
 
+class MeshTriangle;
 class World
 {
 public:
@@ -25,8 +26,10 @@ public:
 protected:
 	void CreateWorld();
 	void CreateSphere();
-
+	void CreateMeshTriangle();
+	void AddTriangleToVec(MeshTriangle* pMesh);
 protected:
 	std::vector<Sphere> m_VecSphere;
+	std::vector<Triangle> m_VecTriangles;
 };
 

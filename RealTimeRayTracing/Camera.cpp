@@ -3,7 +3,7 @@
 #include "Keyboard.h"
 #include "GameApp.h"
 
-static float const DELTATIME_MUL = 1 / 65535.0f;
+static float const DELTATIME_MUL = 0.01f;
 void Camera::Init()
 {
 	m_Width = GameApp::Instance().GetWidth();
@@ -40,11 +40,11 @@ void Camera::UpdateProjectionMat()
 
 void Camera::UpdateViewMat()
 {
-	DirectX::XMVECTOR eye = DirectX::XMLoadFloat3(&m_Position);
+	DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&m_Position);
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat3(&m_Up);
-	DirectX::XMVECTOR lookat = DirectX::XMLoadFloat3(&m_Target);
+	DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&m_Dir);
 
-	m_ViewMat = DirectX::XMMatrixLookAtRH(eye, lookat, up);
+	m_ViewMat = DirectX::XMMatrixLookToRH(pos, dir, up);
 }
 
 void Camera::UpdateCameraCtrl(DWORD deltaTime)
@@ -77,6 +77,21 @@ void Camera::UpdateCameraCtrl(DWORD deltaTime)
 	{
 		m_Position -= m_Dir * speed;
 	}
+
+	if (m_FirstTick)
+	{
+		m_FirstTick = false;
+	}
+
+	if (Keyboard::Get().GetState().R) //Reset
+	{
+		m_Up = Vec3(0, 1, 0);
+		m_Position = Vec3(0, 0, 5);
+		m_Dir = Vec3(0, 0, -1);
+
+		m_Pitch = 0;
+		m_Yaw = 0;
+	}
 }
 
 void Camera::DoYaw(DWORD deltaTime)
@@ -84,6 +99,12 @@ void Camera::DoYaw(DWORD deltaTime)
 	using namespace DirectX;
 	float posX = Mouse::Get().GetState().x;
 	bool bRBDown = Mouse::Get().GetState().rightButton;
+
+	if (m_FirstTick)
+	{
+		m_LastMousePosX = posX;
+		return;
+	}
 
 	if (bRBDown)
 	{
@@ -100,10 +121,17 @@ void Camera::DoPitch(DWORD deltaTime)
 	float posY = Mouse::Get().GetState().y;
 	bool bRBDown = Mouse::Get().GetState().rightButton;
 
+	if (m_FirstTick)
+	{
+		m_LastMousePosY = posY;
+		return;
+	}
+
 	if (bRBDown)
 	{
 		auto pitch = (m_LastMousePosY - posY) * m_YawPitchSpeed * DELTATIME_MUL * deltaTime;
 		m_Pitch += pitch;
+		ClampT(m_Pitch, -89.0f, 89.0f);
 	}
 
 	m_LastMousePosY = posY;
@@ -111,15 +139,19 @@ void Camera::DoPitch(DWORD deltaTime)
 
 Vec3 Camera::GetDirFromYawPitch()
 {
-	float yaw = Degrees_to_Radians(m_Yaw);
-	float pitch = Degrees_to_Radians(m_Pitch);
+	float theta = Degrees_to_Radians(m_Pitch);
+	float phi = Degrees_to_Radians(m_Yaw);
 	float rad = 1.0f;
-	float project = rad * std::cosf(pitch);
+
+	//这里相当于把球面坐标换成以Y轴朝上的形式
+	//theta为X,Z平面与rad的夹角
+	//phi为rad在X,Z平面投影project与X轴的夹角
+	float project = rad * std::cosf(theta);
 
 	Vec3 dir;
-	dir.y = rad * std::sinf(pitch);
-	dir.x = project * std::cosf(yaw);
-	dir.z = project * std::sinf(yaw);
+	dir.y = rad * std::sinf(theta);
+	dir.x = project * std::cosf(phi);
+	dir.z = project * std::sinf(phi);
 
 	dir.Normalize();
 	return dir;

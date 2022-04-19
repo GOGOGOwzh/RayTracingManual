@@ -29,10 +29,6 @@ public:
 		m_Fov = fov;
 	}
 
-	void SetTarget(const Vec3& target) {
-		m_Target = target;
-	}
-
 	void SetUp(const Vec3& up) {
 		m_Up = up;
 	}
@@ -51,10 +47,11 @@ protected:
 	Vec3 GetDirFromYawPitch();
 
 protected:
+	bool m_FirstTick = true;
 	float m_LastMousePosX = 0.0f;
 	float m_LastMousePosY = 0.0f;
 
-	float m_Yaw = 0.0f;
+	float m_Yaw = -90.0f;
 	float m_Pitch = 0.0f;
 	float m_MoveSpeed = 1.0f;
 	float m_YawPitchSpeed = 1.0f;
@@ -67,8 +64,7 @@ protected:
 
 	Vec3 m_Up = Vec3(0, 1, 0);
 	Vec3 m_Position = Vec3(0,0,5);
-	Vec3 m_Target = Vec3(0, 0, 0);
-	Vec3 m_Dir = Vec3(0, 0, 1);
+	Vec3 m_Dir = Vec3(0, 0, -1);
 
 	Mat4x4 m_ViewMat;
 	Mat4x4 m_ProjectionMat;

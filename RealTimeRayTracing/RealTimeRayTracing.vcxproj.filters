@@ -54,6 +54,12 @@
     <ClCompile Include="DirectXTK\SimpleMath.cpp">
       <Filter>Helper\DirectXTK</Filter>
     </ClCompile>
+    <ClCompile Include="MeshTriangle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BVH.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXTK\Keyboard.h">
@@ -93,6 +99,15 @@
       <Filter>Helper\DirectXTK</Filter>
     </ClInclude>
     <ClInclude Include="CSObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshTriangle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BVH.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJ_Loader.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

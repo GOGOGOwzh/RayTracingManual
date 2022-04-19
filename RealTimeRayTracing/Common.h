@@ -5,6 +5,7 @@
 *****************************************************************************/
 #pragma once
 
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -32,15 +33,15 @@
 
 #define M_PI 3.14159265358979323846
 
+#define Self_Max(a, b) (((a) > (b)) ? (a) : (b))
+#define Self_Min(a, b) (((a) < (b)) ? (a) : (b))
+
 using Vec2 = DirectX::SimpleMath::Vector2;
 using Vec3 = DirectX::SimpleMath::Vector3;
 using Vec4 = DirectX::SimpleMath::Vector4;
 using Mat4x4 = DirectX::SimpleMath::Matrix;
 
 const Vec3 G_AxisY = Vec3(0, 1, 0);
-
-template <class T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 inline float Degrees_to_Radians(float degrees)
 {
@@ -50,6 +51,16 @@ inline float Degrees_to_Radians(float degrees)
 inline float Radians_to_Degrees(float radians)
 {
 	return radians * 180 / M_PI;
+}
+
+inline Vec3 Max(const Vec3& v1, const Vec3& v2)
+{
+	return Vec3(Self_Max(v1.x, v2.x), Self_Max(v1.y, v2.y), Self_Max(v1.z, v2.z));
+}
+
+inline Vec3 Min(const Vec3& v1, const Vec3& v2)
+{
+	return Vec3(Self_Min(v1.x, v2.x), Self_Min(v1.y, v2.y), Self_Min(v1.z, v2.z));
 }
 
 inline void ThrowIfFailed(HRESULT hr)
@@ -108,3 +119,12 @@ inline HRESULT CreateShaderFromFile(const WCHAR* csoFileNameInOut, const WCHAR* 
 	return hr;
 }
 
+template <class T>
+using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+template <class T>
+inline void ClampT(T& x, const T& min, const T& max)
+{
+	if (x < min)x = min;
+	if (x > max)x = max;
+}
