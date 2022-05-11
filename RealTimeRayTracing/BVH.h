@@ -15,7 +15,9 @@ struct BVH_Node
 {
 	BoundingBox AABB;
 	int TriangleIndex = -1;
-
+	int NodeIndex = -1;
+	std::shared_ptr<BVH_Node> pParentNode = nullptr;
+	std::shared_ptr<BVH_Node> pRightBrotherNode = nullptr;
 	std::shared_ptr<BVH_Node> pLeftNode = nullptr;
 	std::shared_ptr<BVH_Node> pRightNode = nullptr;
 };
@@ -32,6 +34,7 @@ public:
 protected:
 	std::shared_ptr<BVH_Node> m_rootNode;
 	std::vector<CSBVH_Node> m_vecCSBVHNode;
+	static int m_nodeIndex;
 public:
 	BVH(std::vector<Triangle> vecObj);
 
@@ -41,7 +44,7 @@ public:
 
 	std::vector<CSBVH_Node>& GetCSBVHNode() { return m_vecCSBVHNode; }
 protected:
-	std::shared_ptr<BVH_Node> RecursiveBuild(std::vector<Triangle> vecObj);
+	std::shared_ptr<BVH_Node> RecursiveBuild(std::vector<Triangle> vecObj,std::shared_ptr<BVH_Node> parentNode);
 	void PreOrderRecurive(std::shared_ptr<BVH_Node> node);
 	void MakeLinkedlistToVec();
 };

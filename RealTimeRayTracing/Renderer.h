@@ -40,6 +40,12 @@ protected:
 	ComPtr<ID3D11Buffer> m_SphereBuffer;
 	ComPtr<ID3D11ShaderResourceView> m_SphereSRV;
 
+	ComPtr<ID3D11Buffer> m_TriangleBuffer;
+	ComPtr<ID3D11ShaderResourceView> m_TriangleSRV;
+
+	ComPtr<ID3D11Buffer> m_BVHBuffer;
+	ComPtr<ID3D11ShaderResourceView> m_BVHSRV;
+
 	ComPtr<ID3D11Buffer> m_CSConstBuffer;
 };
 

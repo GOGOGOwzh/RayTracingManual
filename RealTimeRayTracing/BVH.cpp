@@ -17,13 +17,16 @@ int GetBoundingBoxExtType(const BoundingBox & box)
 	}
 }
 
+int BVH::m_nodeIndex = 0;
+
 BVH::BVH(std::vector<Triangle> vecObj)
 {
 	time_t start, stop;
 	time(&start);
 	std::cout << "BuildBVH¡­¡­" << std::endl;
 
-	m_rootNode = RecursiveBuild(vecObj);
+	m_nodeIndex = 0;
+	m_rootNode = RecursiveBuild(vecObj,nullptr);
 
 	MakeLinkedlistToVec();
 
@@ -48,7 +51,7 @@ int BVH::GetCSBVHNodeStride()
 	return sizeof(CSBVH_Node);
 }
 
-std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj)
+std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj, std::shared_ptr<BVH_Node> parentNode)
 {
 	if (vecObj.size() <= 0)
 	{
@@ -56,14 +59,23 @@ std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj)
 	}
 
 	std::shared_ptr<BVH_Node> node = std::make_shared<BVH_Node>();
+	if (parentNode)
+	{
+		node->pParentNode = parentNode;
+	}
+	node->NodeIndex = m_nodeIndex;
+	m_nodeIndex++;
+
 	if (vecObj.size() == 1)
 	{
 		node->AABB = vecObj[0].AABB;
 		node->TriangleIndex = vecObj[0].Index;
 	}
 	else if (vecObj.size() == 2) {
-		node->pLeftNode = RecursiveBuild(std::vector{ vecObj[0] });
-		node->pRightNode = RecursiveBuild(std::vector{ vecObj[1] });
+		node->pLeftNode = RecursiveBuild(std::vector{ vecObj[0] },node);
+		node->pRightNode = RecursiveBuild(std::vector{ vecObj[1] },node);
+
+		node->pLeftNode->pRightBrotherNode = node->pRightNode;
 
 		node->AABB = Union(node->pLeftNode->AABB, node->pRightNode->AABB);
 		return node;
@@ -107,8 +119,10 @@ std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj)
 
 		assert(vecObj.size() == (vecLeft.size() + vecRight.size()));
 
-		node->pLeftNode = RecursiveBuild(vecLeft);
-		node->pRightNode = RecursiveBuild(vecRight);
+		node->pLeftNode = RecursiveBuild(vecLeft,node);
+		node->pRightNode = RecursiveBuild(vecRight,node);
+
+		node->pLeftNode->pRightBrotherNode = node->pRightNode;
 
 		node->AABB = Union(node->pLeftNode->AABB, node->pRightNode->AABB);
 	}
@@ -123,8 +137,30 @@ void BVH::PreOrderRecurive(std::shared_ptr<BVH_Node> node)
 		return;
 	}
 	CSBVH_Node csNode;
-	csNode.AABB = node->AABB;
+	csNode.NodeInex = node->NodeIndex;
 	csNode.TriangleIndex = node->TriangleIndex;
+
+	if (node->pParentNode)
+	{
+		csNode.ParentNodeIndex = node->pParentNode->NodeIndex;
+	}
+	
+	if (node->pRightBrotherNode)
+	{
+		csNode.RightBrotherNodeIndex = node->pRightBrotherNode->NodeIndex;
+	}
+
+	if (node->pLeftNode)
+	{
+		csNode.LeftNodeIndex = node->pLeftNode->NodeIndex;
+	}
+	if (node->pRightNode)
+	{
+		csNode.RightNodeIndex = node->pRightNode->NodeIndex;
+	}
+
+	csNode.AABB = node->AABB;
+
 	m_vecCSBVHNode.push_back(csNode);
 
 	PreOrderRecurive(node->pLeftNode);
@@ -133,5 +169,5 @@ void BVH::PreOrderRecurive(std::shared_ptr<BVH_Node> node)
 
 void BVH::MakeLinkedlistToVec()
 {
-
+	PreOrderRecurive(m_rootNode);
 }

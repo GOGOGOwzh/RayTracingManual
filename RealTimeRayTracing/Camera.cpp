@@ -8,6 +8,8 @@ void Camera::Init()
 {
 	m_Width = GameApp::Instance().GetWidth();
 	m_Height = GameApp::Instance().GetHeight();
+	//m_NearPlane = m_Height * 0.5f / std::tanf(Degrees_to_Radians(m_Fov * 0.5));
+	//m_NearPlane = 0.1;
 }
 
 void Camera::Tick(DWORD deltaTime)
@@ -50,6 +52,21 @@ void Camera::UpdateViewMat()
 void Camera::UpdateCameraCtrl(DWORD deltaTime)
 {
 	using namespace DirectX;
+	float speed = m_MoveSpeed * deltaTime * 0.1f;
+	if (Keyboard::Get().GetState().S)//back
+	{
+		m_Position -= m_Dir * speed;
+		printf("Back X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
+	}
+	else if (Keyboard::Get().GetState().W) //forward
+	{
+		m_Position += m_Dir * speed;
+		printf("Forward X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
+	}
+	return;
+	
+	/*
+	using namespace DirectX;
 	DoYaw(deltaTime); DoPitch(deltaTime);
 	m_Dir = GetDirFromYawPitch();
 
@@ -63,19 +80,23 @@ void Camera::UpdateCameraCtrl(DWORD deltaTime)
 	if (Keyboard::Get().GetState().A) //left
 	{
 		m_Position -= rightVec * speed;
+		printf("Left X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
 	}
 	else if (Keyboard::Get().GetState().D)//right
 	{
 		m_Position += rightVec * speed;
+		printf("Right X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
 	}
 
 	if (Keyboard::Get().GetState().W) //forward
 	{
 		m_Position += m_Dir * speed;
+		printf("Forward X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
 	}
 	else if (Keyboard::Get().GetState().S)//back
 	{
 		m_Position -= m_Dir * speed;
+		printf("Back X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
 	}
 
 	if (m_FirstTick)
@@ -85,13 +106,15 @@ void Camera::UpdateCameraCtrl(DWORD deltaTime)
 
 	if (Keyboard::Get().GetState().R) //Reset
 	{
-		m_Up = Vec3(0, 1, 0);
-		m_Position = Vec3(0, 0, 5);
-		m_Dir = Vec3(0, 0, -1);
+		m_Up = m_OrgUp;
+		m_Position = m_OrgPosition;
+		m_Dir = m_OrgDir;
 
-		m_Pitch = 0;
-		m_Yaw = 0;
+		m_Pitch = m_OrgPitch;
+		m_Yaw = m_OrgYaw;
 	}
+	*/
+	
 }
 
 void Camera::DoYaw(DWORD deltaTime)

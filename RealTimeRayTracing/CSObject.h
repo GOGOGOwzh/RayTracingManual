@@ -57,7 +57,12 @@ struct Triangle
 struct CSBVH_Node
 {
 	BoundingBox AABB;
-	int TriangleIndex;
+	int TriangleIndex = -1;
+	int NodeInex = -1;
+	int ParentNodeIndex = -1;
+	int RightBrotherNodeIndex = -1;
+	int LeftNodeIndex = -1;
+	int RightNodeIndex = -1;
 };
 
 inline BoundingBox Union(const BoundingBox& box1, const BoundingBox& box2)
@@ -89,8 +94,8 @@ inline void CalcTriangleNormalAndArea(Triangle& triangle)
 	auto E1 = p1 - p0; auto E2 = p2 - p0;
 
 	auto E1XE2 = E1.Cross(E2);
-	E1XE2.Normalize();
 	triangle.TriangleNormal = E1XE2;
+	triangle.TriangleNormal.Normalize();
 	triangle.Area = E1XE2.Length() * 0.5f;
 }
 

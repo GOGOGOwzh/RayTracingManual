@@ -51,20 +51,28 @@ protected:
 	float m_LastMousePosX = 0.0f;
 	float m_LastMousePosY = 0.0f;
 
-	float m_Yaw = -90.0f;
+	float m_Yaw = 90.0f;
 	float m_Pitch = 0.0f;
-	float m_MoveSpeed = 1.0f;
+
+	float m_OrgYaw = 90.0f;
+	float m_OrgPitch = 0.0f;
+
+	float m_MoveSpeed = 10.0f;
 	float m_YawPitchSpeed = 1.0f;
 
-	float m_NearPlane = 0.1f;
+	float m_NearPlane = 0.001f;
 	float m_FarPlane = 1000.0f;
 	float m_Width;
 	float m_Height;
-	float m_Fov = 45.0f;
+	float m_Fov = 40.0f;
 
 	Vec3 m_Up = Vec3(0, 1, 0);
-	Vec3 m_Position = Vec3(0,0,5);
-	Vec3 m_Dir = Vec3(0, 0, -1);
+	Vec3 m_Position = Vec3(278, 273, -130);
+	Vec3 m_Dir = Vec3(0, 0, 1);
+
+	Vec3 m_OrgUp = Vec3(0, 1, 0);
+	Vec3 m_OrgPosition = Vec3(278, 273, -130);
+	Vec3 m_OrgDir = Vec3(0, 0, 1);
 
 	Mat4x4 m_ViewMat;
 	Mat4x4 m_ProjectionMat;

@@ -46,6 +46,12 @@ void Renderer::Render()
 	//设置Sphere的SRV
 	d3dContext->CSSetShaderResources(0, 1, m_SphereSRV.GetAddressOf());
 
+	//设置Triangle的SRV
+	d3dContext->CSSetShaderResources(1, 1, m_TriangleSRV.GetAddressOf());
+
+	//设置BVH的SRV
+	d3dContext->CSSetShaderResources(2, 1, m_BVHSRV.GetAddressOf());
+
 	//运行CS
 	d3dContext->Dispatch((UINT)ceilf(width / 16.0f), (UINT)ceilf(height / 16.0f), 1);
 
@@ -226,7 +232,7 @@ void Renderer::CreateComputeShaderBuffer()
 		ThrowIfFailed(d3dDevice->CreateBuffer(&desc, &data, m_SphereBuffer.GetAddressOf()));
 
 #if defined(_DEBUG)
-		m_SphereBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("spheres") - 1, "spheres");
+		m_SphereBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Spheres") - 1, "Spheres");
 #endif			
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
@@ -234,6 +240,54 @@ void Renderer::CreateComputeShaderBuffer()
 		srvDesc.Buffer.FirstElement = 0;
 		srvDesc.Buffer.NumElements = world->GetSphereVec().size();
 		ThrowIfFailed(d3dDevice->CreateShaderResourceView(m_SphereBuffer.Get(),&srvDesc,m_SphereSRV.GetAddressOf()));
+	}
+
+	//Triangle
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED; //这个地方决定使用了structuredBuffer
+
+		desc.ByteWidth = world->GetTriangleByteWidth();
+		desc.StructureByteStride = world->GetTriangleStride();
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = world->GetTriangleVec().data();
+
+		ThrowIfFailed(d3dDevice->CreateBuffer(&desc, &data, m_TriangleBuffer.GetAddressOf()));
+
+#if defined(_DEBUG)
+		m_TriangleBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Triangles") - 1, "Triangles");
+#endif			
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.Buffer.FirstElement = 0;
+		srvDesc.Buffer.NumElements = world->GetTriangleVec().size();
+		ThrowIfFailed(d3dDevice->CreateShaderResourceView(m_TriangleBuffer.Get(), &srvDesc, m_TriangleSRV.GetAddressOf()));
+	}
+
+	//BVH
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED; //这个地方决定使用了structuredBuffer
+
+		desc.ByteWidth = world->GetBVHByteWidth();
+		desc.StructureByteStride = world->GetBVHStride();
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = world->GetBVHVec().data();
+
+		ThrowIfFailed(d3dDevice->CreateBuffer(&desc, &data, m_BVHBuffer.GetAddressOf()));
+
+#if defined(_DEBUG)
+		m_BVHBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("BVH") - 1, "BVH");
+#endif			
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.Buffer.FirstElement = 0;
+		srvDesc.Buffer.NumElements = world->GetBVHVec().size();
+		ThrowIfFailed(d3dDevice->CreateShaderResourceView(m_BVHBuffer.Get(), &srvDesc, m_BVHSRV.GetAddressOf()));
 	}
 }
 

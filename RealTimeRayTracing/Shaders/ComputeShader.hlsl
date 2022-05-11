@@ -10,6 +10,8 @@ cbuffer CB : register(b0)
 
 RWTexture2D<float4> ResultTexture : register(u0);
 StructuredBuffer<Sphere> VecSpheres : register(t0);
+StructuredBuffer<Triangle> VecTriagles : register(t1);
+StructuredBuffer<BVHNode> VecBVH : register(t2);
 
 #define MAX_SAMPLE_DEPTH 1
 
@@ -20,6 +22,7 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
     
     float fraction = M_ININITY;
  
+    /*
     //Sphere
     bool bTraceSphere = false;
     Sphere sphere;
@@ -38,8 +41,79 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             GetObjectSurfaceProerty(sphere, traceInfo, traceInfo.HitNormal);
         }
     }
-
-    traceInfo.BTraced = bTraceSphere;
+    
+    bool bTraceTriangle = false;
+    uint triangleCount, triangleStride, j;
+    VecTriagles.GetDimensions(triangleCount, triangleStride);
+    
+    Triangle trian;
+    for (j = 0; j < triangleCount; j++)
+    {
+        trian = VecTriagles[j];
+        if (TraceTriangle(ray, trian, fraction) && fraction < traceInfo.Fraction)
+        {
+            traceInfo.Fraction = fraction;
+            bTraceTriangle = true;
+            
+            traceInfo.Mat = trian.Mat;
+            traceInfo.HitPoint = ray.OrgPos + ray.Dir * fraction;
+            GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
+        }
+    }
+    */
+    //BVH
+    
+    bool bTraceBVH = false;
+    uint nodeCount, nodeStride, i;
+    VecBVH.GetDimensions(nodeCount, nodeStride);
+    BVHNode node;
+    for (i = 0; i < nodeCount;i++)
+    {
+        node = VecBVH[i];
+        if (TraceAABB(ray,node.AABB,fraction) && fraction < traceInfo.Fraction)
+        {
+            if(node.TriangleIndex >= 0)
+            {
+                Triangle trian = VecTriagles[node.TriangleIndex];
+                if (TraceTriangle(ray, trian, fraction) && fraction < traceInfo.Fraction)
+                {
+                    traceInfo.Fraction = fraction;
+                    bTraceBVH = true;
+            
+                    traceInfo.Mat = trian.Mat;
+                    traceInfo.HitPoint = ray.OrgPos + ray.Dir * fraction;
+                    GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
+                }
+            }
+        }
+        else
+        {
+            //root node
+            if (IsRootNode(node))
+            {
+                break;
+            }
+            
+            if (node.RightBrotherNodeIndex != -1)
+            {
+                i = node.RightBrotherNodeIndex-1;
+            }
+            else
+            {
+                if (node.ParentNodeIndex != -1 && !IsLeafNode(node))
+                {
+                    BVHNode parentNode = VecBVH[node.ParentNodeIndex];
+                    if (parentNode.RightBrotherNodeIndex !=-1)
+                    {
+                        i = parentNode.RightBrotherNodeIndex - 1;
+                    }
+                }
+            }
+           
+        }
+    }
+    
+    traceInfo.BTraced = bTraceBVH;
 }
 
 bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
@@ -54,6 +128,7 @@ bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
         }
         else
         {
+            traceInfo.Radiance = mat.Albedo;
         }
         
         ray.Dir = ZERO_FLOAT_3;
@@ -76,13 +151,13 @@ void CS_main( uint3 DTid : SV_DispatchThreadID )
 {
     uint screen_width, screen_height;
     ResultTexture.GetDimensions(screen_width, screen_height);
-    float2 dimension = float2(screen_width, screen_height);
+    float2 dimensions = float2(screen_width, screen_height);
     
     uint2 pixel = DTid.xy;
     float2 offset = float2(0.5, 0.5);
   
-    Ray ray = GenerateCamRay(pixel, offset, dimension, CameraPos, VPInvert);
-    
+    Ray ray = GenerateCamRay(pixel, offset, dimensions, CameraPos, VPInvert);
+  
     TraceInfo traceInfo;
     InitTraceInfo(traceInfo);
     

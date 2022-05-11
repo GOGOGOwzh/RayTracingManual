@@ -15,6 +15,13 @@ struct Material
     float3 Emission;
 };
 
+struct BoundingBox
+{
+    float3 MinVert;
+    float3 MaxVert;
+    float3 CenterVert;
+};
+
 struct Sphere
 {
     float3 Center;
@@ -24,7 +31,25 @@ struct Sphere
 
 struct Triangle
 {
-    float3 Pos[3];
+    int Index;
+    float Area;
+    float3 Point[3];
+    float3 PointNoraml[3];
+    float2 UVIndex[3];
+    float3 TriangleNormal;
+    BoundingBox AABB;
+    Material Mat;
+};
+
+struct BVHNode
+{
+    BoundingBox AABB;
+    int TriangleIndex;
+    int NodeInex;
+    int ParentNodeIndex;
+    int RightBrotherNodeIndex;
+    int LeftNodeIndex;
+    int RightNodeIndex;
 };
 
 struct Ray
@@ -80,6 +105,33 @@ Ray GenerateCamRay(uint2 pixel,float2 offset,float2 dimensions,float3 camPos,flo
     ray.Dir = dir;
 
     return ray;
+}
+
+void Swap(inout float a, inout float b)
+{
+    float tmp = a;
+    a = b;
+    b = a;
+}
+
+float Max(float a, float b, float c)
+{
+    float max = a;
+    if (b > a)
+        max = b;
+    if(c > max)
+        max = c;
+    return max;
+}
+
+float Min(float a, float b, float c)
+{
+    float min = a;
+    if (b < a)
+        min = b;
+    if (c < min)
+        min = c;
+    return min;
 }
 
 bool TraceSphere(Ray ray,Sphere sphere,inout float fraction)
@@ -146,6 +198,89 @@ bool TraceSphere(Ray ray,Sphere sphere,inout float fraction)
     return true;
 }
 
+bool TraceAABB(Ray ray, BoundingBox aabb, inout float fraction)
+{
+    float3 pos = ray.OrgPos;
+    float3 dir = ray.Dir;
+    float invX = 1.0f / dir.x;
+    float invY = 1.0f / dir.y;
+    float invZ = 1.0f / dir.z;
+
+    float tMinX = (aabb.MinVert.x - pos.x) * invX;
+    float tMaxX = (aabb.MaxVert.x - pos.x) * invX;
+
+    float tMinY = (aabb.MinVert.y - pos.y) * invY;
+    float tMaxY = (aabb.MaxVert.y - pos.y) * invY;
+
+    float tMinZ = (aabb.MinVert.z - pos.z) * invZ;
+    float tMaxZ = (aabb.MaxVert.z - pos.z) * invZ;
+
+    if (dir.x < 0)
+    {
+       Swap(tMinX, tMaxX);
+    }
+
+    if (dir.y < 0)
+    {
+        Swap(tMinY, tMaxY);
+    }
+
+    if (dir.z < 0)
+    {
+        Swap(tMinZ, tMaxZ);
+    }
+
+    float tEnter = Max(tMinX, tMinY, tMinZ);
+    float tExit = Min(tMaxX, tMaxY, tMaxZ);
+
+	//注意 有tEnter==tExit的情况
+    if (tEnter <= tExit && tExit >= 0)
+    {
+        fraction = tEnter;
+        return true;
+    }
+
+    return false;
+}
+
+bool TraceTriangle(Ray ray, Triangle trian, inout float fraction)
+{
+    float3 pos = ray.OrgPos;
+    float3 dir = ray.Dir;
+    
+    if (dot(trian.TriangleNormal, dir) > 0)
+    {
+        return false;
+    }
+
+    float3 p0 = trian.Point[0];
+    float3 p1 = trian.Point[1];
+    float3 p2 = trian.Point[2];
+    float3 E1 = p1 - p0;
+    float3 E2 = p2 - p0;
+    float3 S = pos - p0;
+    float3 S1 = cross(dir, E2);
+    float3 S2 = cross(S, E1);
+
+    float division = dot(S1, E1);
+    division = 1.0f / division;
+
+    float t = dot(S2, E2) * division;
+    float b1 = dot(S1, S) * division;
+    float b2 = dot(S2, dir) * division;
+
+    float b = 1 - b1 - b2;
+    if (t > 0 && b1 > 0 && b2 > 0 && b > 0)
+    {
+        fraction = t;
+        //st.x = b1;
+       // st.y = b2;
+        return true;
+    }
+
+    return false;
+}
+
 void GetObjectSurfaceProerty(Sphere sphere,TraceInfo traceInfo, inout float3 normal)
 {
     normal = normalize(traceInfo.HitPoint - sphere.Center);
@@ -153,6 +288,21 @@ void GetObjectSurfaceProerty(Sphere sphere,TraceInfo traceInfo, inout float3 nor
 
 void GetObjectSurfaceProerty(Triangle trian,TraceInfo traceInfo, inout float3 normal)
 {
+    normal = trian.TriangleNormal;
 }
 
+bool IsRootNode(BVHNode node)
+{
+    return (node.LeftNodeIndex != -1 || node.RightBrotherNodeIndex != -1) && node.RightBrotherNodeIndex == -1 && node.ParentNodeIndex == -1;;
+}
+
+bool IsLeafNode(BVHNode node)
+{
+    return node.LeftNodeIndex == -1 && node.RightBrotherNodeIndex == -1;
+}
+
+int GetNodeRightBrotherNodeIndex(BVHNode node)
+{
+    return node.RightBrotherNodeIndex;
+}
 #endif
