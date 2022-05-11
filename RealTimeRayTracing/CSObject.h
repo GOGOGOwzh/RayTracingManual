@@ -61,8 +61,8 @@ struct CSBVH_Node
 	int NodeInex = -1;
 	int ParentNodeIndex = -1;
 	int RightBrotherNodeIndex = -1;
-	int LeftNodeIndex = -1;
-	int RightNodeIndex = -1;
+	int LeftChildNodeIndex = -1;
+	int RightChildNodeIndex = -1;
 };
 
 inline BoundingBox Union(const BoundingBox& box1, const BoundingBox& box2)

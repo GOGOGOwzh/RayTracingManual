@@ -72,12 +72,12 @@ std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj, std:
 		node->TriangleIndex = vecObj[0].Index;
 	}
 	else if (vecObj.size() == 2) {
-		node->pLeftNode = RecursiveBuild(std::vector{ vecObj[0] },node);
-		node->pRightNode = RecursiveBuild(std::vector{ vecObj[1] },node);
+		node->pLeftChildNode = RecursiveBuild(std::vector{ vecObj[0] },node);
+		node->pRightChildNode = RecursiveBuild(std::vector{ vecObj[1] },node);
 
-		node->pLeftNode->pRightBrotherNode = node->pRightNode;
+		node->pLeftChildNode->pRightBrotherNode = node->pRightChildNode;
 
-		node->AABB = Union(node->pLeftNode->AABB, node->pRightNode->AABB);
+		node->AABB = Union(node->pLeftChildNode->AABB, node->pRightChildNode->AABB);
 		return node;
 	}
 	else {
@@ -119,12 +119,12 @@ std::shared_ptr<BVH_Node> BVH::RecursiveBuild(std::vector<Triangle> vecObj, std:
 
 		assert(vecObj.size() == (vecLeft.size() + vecRight.size()));
 
-		node->pLeftNode = RecursiveBuild(vecLeft,node);
-		node->pRightNode = RecursiveBuild(vecRight,node);
+		node->pLeftChildNode = RecursiveBuild(vecLeft,node);
+		node->pRightChildNode = RecursiveBuild(vecRight,node);
 
-		node->pLeftNode->pRightBrotherNode = node->pRightNode;
+		node->pLeftChildNode->pRightBrotherNode = node->pRightChildNode;
 
-		node->AABB = Union(node->pLeftNode->AABB, node->pRightNode->AABB);
+		node->AABB = Union(node->pLeftChildNode->AABB, node->pRightChildNode->AABB);
 	}
 
 	return node;
@@ -150,24 +150,25 @@ void BVH::PreOrderRecurive(std::shared_ptr<BVH_Node> node)
 		csNode.RightBrotherNodeIndex = node->pRightBrotherNode->NodeIndex;
 	}
 
-	if (node->pLeftNode)
+	if (node->pLeftChildNode)
 	{
-		csNode.LeftNodeIndex = node->pLeftNode->NodeIndex;
+		csNode.LeftChildNodeIndex = node->pLeftChildNode->NodeIndex;
 	}
-	if (node->pRightNode)
+	if (node->pRightChildNode)
 	{
-		csNode.RightNodeIndex = node->pRightNode->NodeIndex;
+		csNode.RightChildNodeIndex = node->pRightChildNode->NodeIndex;
 	}
 
 	csNode.AABB = node->AABB;
 
 	m_vecCSBVHNode.push_back(csNode);
 
-	PreOrderRecurive(node->pLeftNode);
-	PreOrderRecurive(node->pRightNode);
+	PreOrderRecurive(node->pLeftChildNode);
+	PreOrderRecurive(node->pRightChildNode);
 }
 
 void BVH::MakeLinkedlistToVec()
 {
+	m_vecCSBVHNode.reserve(m_nodeIndex + 1);
 	PreOrderRecurive(m_rootNode);
 }

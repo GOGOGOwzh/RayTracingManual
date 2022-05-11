@@ -116,23 +116,31 @@ void World::CreateMeshTriangle()
 
 	
 	MeshTriangle floor("floor.obj", Vec3(0,0,0), matWhite);
-	AddTriangleToVec(&floor);
+	int trianglesCount = floor.GetTrianglesCount();
 
 	MeshTriangle shortbox("shortbox.obj", Vec3(0, 0, 0), matWhite);
-	AddTriangleToVec(&shortbox);
+	trianglesCount += shortbox.GetTrianglesCount();
 	
 	MeshTriangle tallbox("tallbox.obj", Vec3(0, 0, 0), matWhite);
-	AddTriangleToVec(&tallbox);
+	trianglesCount += tallbox.GetTrianglesCount();
 	
 	MeshTriangle left("left.obj", Vec3(0, 0, 0), matRed);
-	AddTriangleToVec(&left);
-
+	trianglesCount += left.GetTrianglesCount();
+	
 	MeshTriangle right("right.obj", Vec3(0, 0, 0), matGreen);
-	AddTriangleToVec(&right);
+	trianglesCount += right.GetTrianglesCount();
 
 	MeshTriangle light("light.obj", Vec3(0, 0, 0), matLight);
+	trianglesCount += light.GetTrianglesCount();
+
+	m_VecTriangles.reserve(trianglesCount);
+
+	AddTriangleToVec(&floor);
+	AddTriangleToVec(&shortbox);
+	AddTriangleToVec(&tallbox);
+	AddTriangleToVec(&left);
+	AddTriangleToVec(&right);
 	AddTriangleToVec(&light);
-	
 }
 
 void World::AddTriangleToVec(MeshTriangle* pMesh)

@@ -70,21 +70,22 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
     for (i = 0; i < nodeCount;i++)
     {
         node = VecBVH[i];
-        if (TraceAABB(ray,node.AABB,fraction) && fraction < traceInfo.Fraction)
+        if (node.TriangleIndex >= 0)
         {
-            if(node.TriangleIndex >= 0)
+            Triangle trian = VecTriagles[node.TriangleIndex];
+            if (TraceTriangle(ray, trian, fraction) && fraction < traceInfo.Fraction)
             {
-                Triangle trian = VecTriagles[node.TriangleIndex];
-                if (TraceTriangle(ray, trian, fraction) && fraction < traceInfo.Fraction)
-                {
-                    traceInfo.Fraction = fraction;
-                    bTraceBVH = true;
+                traceInfo.Fraction = fraction;
+                bTraceBVH = true;
             
-                    traceInfo.Mat = trian.Mat;
-                    traceInfo.HitPoint = ray.OrgPos + ray.Dir * fraction;
-                    GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
-                }
+                traceInfo.Mat = trian.Mat;
+                traceInfo.HitPoint = ray.OrgPos + ray.Dir * fraction;
+                GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
             }
+        }
+        else if (TraceAABB(ray,node.AABB,fraction) && fraction < traceInfo.Fraction)
+        {
+            continue;
         }
         else
         {
@@ -96,8 +97,9 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             
             if (node.RightBrotherNodeIndex != -1)
             {
-                i = node.RightBrotherNodeIndex-1;
+                i = node.RightBrotherNodeIndex;
             }
+            /*
             else
             {
                 if (node.ParentNodeIndex != -1 && !IsLeafNode(node))
@@ -109,6 +111,7 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
                     }
                 }
             }
+            */
            
         }
     }

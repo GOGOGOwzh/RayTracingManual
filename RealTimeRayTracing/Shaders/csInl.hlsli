@@ -45,7 +45,7 @@ struct BVHNode
 {
     BoundingBox AABB;
     int TriangleIndex;
-    int NodeInex;
+    int NodeIndex;
     int ParentNodeIndex;
     int RightBrotherNodeIndex;
     int LeftNodeIndex;
@@ -93,9 +93,12 @@ Ray GenerateCamRay(uint2 pixel,float2 offset,float2 dimensions,float3 camPos,flo
     
     //NDC [-1,1]
     float2 screenPos = pixelIndex / dimensions * 2.0 - 1.0;
+    screenPos.y = -screenPos.y;
     
     float4 worldPos = mul(vpInvert, float4(screenPos, 0, 1));
+    
     //这里一定要在除以W
+    //https://feepingcreature.github.io/math.html
     worldPos.xyz /= worldPos.w;
     
     float3 dir = normalize(worldPos.xyz - camPos);
@@ -111,7 +114,7 @@ void Swap(inout float a, inout float b)
 {
     float tmp = a;
     a = b;
-    b = a;
+    b = tmp;
 }
 
 float Max(float a, float b, float c)
@@ -293,7 +296,7 @@ void GetObjectSurfaceProerty(Triangle trian,TraceInfo traceInfo, inout float3 no
 
 bool IsRootNode(BVHNode node)
 {
-    return (node.LeftNodeIndex != -1 || node.RightBrotherNodeIndex != -1) && node.RightBrotherNodeIndex == -1 && node.ParentNodeIndex == -1;;
+    return (node.ParentNodeIndex == -1);
 }
 
 bool IsLeafNode(BVHNode node)

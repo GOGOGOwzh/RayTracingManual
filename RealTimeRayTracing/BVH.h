@@ -18,8 +18,8 @@ struct BVH_Node
 	int NodeIndex = -1;
 	std::shared_ptr<BVH_Node> pParentNode = nullptr;
 	std::shared_ptr<BVH_Node> pRightBrotherNode = nullptr;
-	std::shared_ptr<BVH_Node> pLeftNode = nullptr;
-	std::shared_ptr<BVH_Node> pRightNode = nullptr;
+	std::shared_ptr<BVH_Node> pLeftChildNode = nullptr;
+	std::shared_ptr<BVH_Node> pRightChildNode = nullptr;
 };
 
 class BVH

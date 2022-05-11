@@ -16,6 +16,8 @@ public:
 
 	std::vector<Triangle>& GetTriangleVec() { return m_vecTriangles; }
 
+	int GetTrianglesCount() { return m_iTriangleCount; }
+
 protected:
 	void ConstructTriangles();
 	void ConstructTriangles(const std::string& fileName);

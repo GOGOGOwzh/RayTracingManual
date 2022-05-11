@@ -105,6 +105,7 @@ void MeshTriangle::ConstructTriangles(const std::string& fileName)
 
 			triangle.Mat = m_Mat;
 
+			m_iTriangleCount++;
 			CalcTriangleNormalAndArea(triangle);
 			BuildBoundingBox(triangle);
 			m_vecTriangles.push_back(triangle);
