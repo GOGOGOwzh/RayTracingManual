@@ -47,6 +47,16 @@ std::vector<Triangle>& World::GetTriangleVec()
 	return m_VecTriangles;
 }
 
+int World::GetLightTriangleByteWidth()
+{
+	return m_VecLightTriangles.size() * sizeof(Triangle);
+}
+
+std::vector<Triangle>& World::GetLightTriangleVec()
+{
+	return m_VecLightTriangles;
+}
+
 int World::GetBVHByteWidth()
 {
 	return m_BVH->GetCSBVHNodeWidth();
@@ -155,6 +165,11 @@ void World::AddTriangleToVec(MeshTriangle* pMesh)
 		}
 		
 		m_VecTriangles.push_back(triangle);
+
+		if (triangle.Mat.Emission != Vec3::Zero)
+		{
+			m_VecLightTriangles.push_back(triangle);
+		}
 	}
 }
 

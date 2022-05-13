@@ -52,6 +52,9 @@ public:
 		return m_Hwnd;
 	}
 
+	int GetCurTimestamp();
+
+	void ResetSampleCount();
 protected:
 	void InitWindows();
 

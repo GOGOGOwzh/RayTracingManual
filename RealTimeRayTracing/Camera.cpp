@@ -52,16 +52,24 @@ void Camera::UpdateViewMat()
 void Camera::UpdateCameraCtrl(DWORD deltaTime)
 {
 	using namespace DirectX;
+	bool bShouldResetFrame(false);
 	float speed = m_MoveSpeed * deltaTime * 0.1f;
 	if (Keyboard::Get().GetState().S)//back
 	{
 		m_Position -= m_Dir * speed;
 		printf("Back X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
+		bShouldResetFrame = true;
 	}
 	else if (Keyboard::Get().GetState().W) //forward
 	{
 		m_Position += m_Dir * speed;
 		printf("Forward X:%f Y:%f Z:%f\n", m_Position.x, m_Position.y, m_Position.z);
+		bShouldResetFrame = true;
+	}
+
+	if (bShouldResetFrame)
+	{
+		GameApp::Instance().ResetSampleCount();
 	}
 	return;
 	

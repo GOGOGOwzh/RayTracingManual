@@ -19,6 +19,11 @@ struct CB
 	Vec3 CameraPos;
 
 	UINT SampleCount;
+	UINT Timestamp;
+
+	UINT reserved;
+	UINT reserved1;
+	UINT reserved2;
 };
 
 struct Material

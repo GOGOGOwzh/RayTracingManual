@@ -6,14 +6,30 @@ cbuffer CB : register(b0)
     float3 CameraPos;
     
     uint SampleCount;
+    uint Timestamp;
 };
 
 RWTexture2D<float4> ResultTexture : register(u0);
 StructuredBuffer<Sphere> VecSpheres : register(t0);
 StructuredBuffer<Triangle> VecTriagles : register(t1);
 StructuredBuffer<BVHNode> VecBVH : register(t2);
+StructuredBuffer<Triangle> VecTriaglesLight : register(t3);
 
-#define MAX_SAMPLE_DEPTH 1
+#define MAX_SAMPLE_DEPTH 10
+
+static uint LightTriangleIndex = 0;
+
+void SampleAreaLight(inout float3 pos, inout float3 normal, inout float pdf, float kesi1, float kesi2)
+{
+    uint triangleCount, triangleStride;
+    VecTriaglesLight.GetDimensions(triangleCount, triangleStride);
+    int chooseIndex = LightTriangleIndex % triangleCount;
+    LightTriangleIndex++;
+    
+    Triangle tri = VecTriaglesLight[chooseIndex];
+    
+    SampleTriangle(tri, pos, normal, pdf, kesi1, kesi2);
+}
 
 void RayTrace(Ray ray,inout TraceInfo traceInfo)
 {
@@ -97,7 +113,7 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             
             if (node.RightBrotherNodeIndex != -1)
             {
-                i = node.RightBrotherNodeIndex;
+                i = node.RightBrotherNodeIndex-1;
             }
             /*
             else
@@ -123,25 +139,76 @@ bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
 {
     if(traceInfo.BTraced)
     {
-        Material mat = traceInfo.Mat;
-        uint matType = mat.Type;
-        if(matType == MAT_LAMBERT)
+        float3 hitPos = traceInfo.HitPoint;
+        float3 brdfDir = float3(0, 0, 0);
+        
+        Material hitMat = traceInfo.Mat;
+        uint matType = hitMat.Type;
+        if (matType == MAT_MC_DIFFUSE)
         {
-            traceInfo.Radiance = mat.Albedo;
-        }
-        else
-        {
-            traceInfo.Radiance = mat.Albedo;
+            if (IsEmissionMat(hitMat))
+            {
+                traceInfo.Radiance = hitMat.Emission;
+                return false;
+            }
+            
+            float3 lightColorDir = float3(0, 0, 0);
+            float3 lightColorInDir = float3(0, 0, 0);
+            
+            float3 hitNor = traceInfo.HitNormal;
+            
+            float3 sampleAreaLightPos = float3(0, 0, 0);
+            float3 sampleAreaLightNor = float3(0, 0, 0);
+            float sampleAreaLightPDF = 0.00001f;
+            float kesi1 = RandNext(traceInfo.Seed);
+            float kesi2 = RandNext(traceInfo.Seed);
+            SampleAreaLight(sampleAreaLightPos, sampleAreaLightNor, sampleAreaLightPDF, kesi1, kesi2);
+            
+            float3 wi = normalize(sampleAreaLightPos - hitPos);
+            float3 wo = normalize(-ray.Dir);
+
+            Ray testLightRay = MakeRay(hitPos, wi);
+            TraceInfo testLightTraceInfo = InitTraceInfo();
+            testLightTraceInfo.Seed = traceInfo.Seed;
+    
+            RayTrace(testLightRay, testLightTraceInfo);
+            if (testLightTraceInfo.BTraced && IsEmissionMat(testLightTraceInfo.Mat))
+            {
+                Material lightMat = testLightTraceInfo.Mat;
+                float len = length(sampleAreaLightPos-hitPos);
+                float distance2 = len * len;
+                lightColorDir = lightMat.Emission * BRDF(hitMat, wi, wo, hitNor) * dot(wi, hitNor) * dot(-wi, sampleAreaLightNor) / distance2 / sampleAreaLightPDF;
+            }
+            
+            kesi1 = RandNext(traceInfo.Seed);
+            kesi2 = RandNext(traceInfo.Seed);
+            wi = normalize(HemisphereUniformSample(wo, hitNor, kesi1, kesi2));
+            
+            Ray testObjectRay = MakeRay(hitPos, wi);
+            TraceInfo testObjectTraceInfo = InitTraceInfo();
+            testObjectTraceInfo.Seed = traceInfo.Seed;
+            
+            RayTrace(testObjectRay, testObjectTraceInfo);
+            if (testObjectTraceInfo.BTraced && !IsEmissionMat(testObjectTraceInfo.Mat))
+            {
+                lightColorInDir = BRDF(hitMat, wi, wo, hitNor) * dot(wi, hitNor) / PDF(hitMat, wi, wo, hitNor);
+
+            }
+            
+            traceInfo.Attenuation *= (lightColorDir + lightColorInDir);
+            
+            brdfDir = wi;
         }
         
-        ray.Dir = ZERO_FLOAT_3;
-        ray.OrgPos = ZERO_FLOAT_3;
+        ray.Dir = brdfDir;
+        ray.OrgPos = hitPos;
         return true;
     }
     else
     {
-        float t = 0.5 * (ray.Dir.y + 1.0);
-        float3 color = (1.0 - t) * float3(1.0, 1.0, 1.0) + t * float3(0.5, 0.7, 1.0);
+       // float t = 0.5 * (ray.Dir.y + 1.0);
+       // float3 color = (1.0 - t) * float3(1.0, 1.0, 1.0) + t * float3(0.5, 0.7, 1.0);
+        float3 color = float3(0, 0, 0);
         traceInfo.Radiance = color;
     }
     
@@ -157,12 +224,15 @@ void CS_main( uint3 DTid : SV_DispatchThreadID )
     float2 dimensions = float2(screen_width, screen_height);
     
     uint2 pixel = DTid.xy;
-    float2 offset = float2(0.5, 0.5);
+    
+    uint randSeed = RandInit(DTid.x + DTid.y * dimensions.x, Timestamp);
+    
+    float2 offset = float2(RandNext(randSeed), RandNext(randSeed));
   
     Ray ray = GenerateCamRay(pixel, offset, dimensions, CameraPos, VPInvert);
   
-    TraceInfo traceInfo;
-    InitTraceInfo(traceInfo);
+    TraceInfo traceInfo = InitTraceInfo();
+    traceInfo.Seed = randSeed;
     
     for (uint i = 0; i < MAX_SAMPLE_DEPTH;i++)
     {
@@ -172,6 +242,6 @@ void CS_main( uint3 DTid : SV_DispatchThreadID )
             break;
         }
     }
-    
-    ResultTexture[DTid.xy] = float4(traceInfo.Radiance, 1);
+    float3 radiance = traceInfo.Radiance + traceInfo.Attenuation;
+    ResultTexture[DTid.xy] = float4(radiance, 1);
 }

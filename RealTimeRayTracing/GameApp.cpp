@@ -4,6 +4,8 @@
 #include "Camera.h"
 #include "World.h"
 
+#include <chrono>
+
 #define CLASS_NAME L"RealTimeRayTrcing"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -123,6 +125,17 @@ void GameApp::Render()
 	m_Camera->Render();
 	m_World->Render();
 	m_Renderer->Render();
+}
+
+int GameApp::GetCurTimestamp()
+{
+	std::time_t t = std::time(0);
+	return t;
+}
+
+void GameApp::ResetSampleCount()
+{
+	m_Renderer->ResetSampleCount();
 }
 
 void GameApp::InitWindows()

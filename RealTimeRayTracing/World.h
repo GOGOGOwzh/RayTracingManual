@@ -27,6 +27,9 @@ public:
 	int GetTriangleStride();
 	std::vector<Triangle>& GetTriangleVec();
 
+	int GetLightTriangleByteWidth();
+	std::vector<Triangle>& GetLightTriangleVec();
+
 	int GetBVHByteWidth();
 	int GetBVHStride();
 	std::vector<CSBVH_Node>& GetBVHVec();
@@ -41,6 +44,7 @@ protected:
 protected:
 	std::vector<Sphere> m_VecSphere;
 	std::vector<Triangle> m_VecTriangles;
+	std::vector<Triangle> m_VecLightTriangles;
 	std::shared_ptr<BVH> m_BVH= nullptr;
 };
 

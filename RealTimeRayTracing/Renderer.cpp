@@ -10,6 +10,7 @@ void Renderer::Init()
 	CreateVertexBuffer();
 	CreateShaderResourse();
 	CreateShaderSampler();
+	CreateBlendState();
 	CreateComputeShaderBuffer();
 }
 
@@ -22,8 +23,9 @@ void Renderer::Render()
 {
 	auto d3dClass = GameApp::Instance().GetD3DClass();
 	auto cameraClass = GameApp::Instance().GetCamera();
+	int timestamp = GameApp::Instance().GetCurTimestamp();
 
-	d3dClass->BeginRender();
+	//d3dClass->BeginRender();
 
 	auto d3dContext = d3dClass->GetDeviceContext();
 	auto d3dDevice = d3dClass->GetD3DDevice();
@@ -39,7 +41,7 @@ void Renderer::Render()
 	//设置CBuffer
 	auto vpInvert = cameraClass->GetVPInvert();
 	auto cameraPos = cameraClass->GetCameraPosition();
-	CB cb = { vpInvert,cameraPos,1 };
+	CB cb = { vpInvert,cameraPos,m_iSampleCount,timestamp};
 	d3dContext->UpdateSubresource(m_CSConstBuffer.Get(), 0, nullptr, &cb, 0, 0);
 	d3dContext->CSSetConstantBuffers(0, 1, m_CSConstBuffer.GetAddressOf());
 
@@ -52,18 +54,24 @@ void Renderer::Render()
 	//设置BVH的SRV
 	d3dContext->CSSetShaderResources(2, 1, m_BVHSRV.GetAddressOf());
 
+	//设置LightTriangle的SRV
+	d3dContext->CSSetShaderResources(3, 1, m_LightTriangleSRV.GetAddressOf());
+
 	//运行CS
 	d3dContext->Dispatch((UINT)ceilf(width / 16.0f), (UINT)ceilf(height / 16.0f), 1);
 
 	ID3D11UnorderedAccessView* nullUAV = nullptr;
 	d3dContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
+	d3dContext->OMSetBlendState(m_BlendTransparent.Get(), nullptr, 0xFFFFFFFF);
 	d3dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	d3dContext->IASetInputLayout(m_VertexLayout.Get());
 
 	UINT stride = sizeof(float) * 4;
 	UINT offset = 0;
 	d3dContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
+
+	d3dContext->PSSetConstantBuffers(0, 1, m_CSConstBuffer.GetAddressOf());
 	d3dContext->PSSetShaderResources(0, 1, m_ResultTexSRV.GetAddressOf());
 	d3dContext->VSSetShader(m_VertextShader.Get(), nullptr, 0);
 	d3dContext->PSSetShader(m_PixelShader.Get(), nullptr, 0);
@@ -72,6 +80,8 @@ void Renderer::Render()
 
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	d3dContext->PSSetShaderResources(0, 1, &nullSRV);
+
+	m_iSampleCount++;
 
 	d3dClass->EndRender();
 }
@@ -200,6 +210,26 @@ void Renderer::CreateShaderSampler()
 	ThrowIfFailed(d3dDevice->CreateSamplerState(&samplerDesc, m_SamplerWrap.GetAddressOf()));
 }
 
+void Renderer::CreateBlendState()
+{
+	auto d3dDevice = GameApp::Instance().GetD3DClass()->GetD3DDevice();
+
+	D3D11_BLEND_DESC blendDesc = {};
+	auto& rtDesc = blendDesc.RenderTarget[0];
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	rtDesc.BlendEnable = true;
+	rtDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	rtDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rtDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtDesc.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rtDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	ThrowIfFailed(d3dDevice->CreateBlendState(&blendDesc, m_BlendTransparent.GetAddressOf()));
+}
+
 void Renderer::CreateComputeShaderBuffer()
 {
 	auto d3dDevice = GameApp::Instance().GetD3DClass()->GetD3DDevice();
@@ -264,6 +294,30 @@ void Renderer::CreateComputeShaderBuffer()
 		srvDesc.Buffer.FirstElement = 0;
 		srvDesc.Buffer.NumElements = world->GetTriangleVec().size();
 		ThrowIfFailed(d3dDevice->CreateShaderResourceView(m_TriangleBuffer.Get(), &srvDesc, m_TriangleSRV.GetAddressOf()));
+	}
+
+	//LightTriangle
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED; //这个地方决定使用了structuredBuffer
+
+		desc.ByteWidth = world->GetLightTriangleByteWidth();
+		desc.StructureByteStride = world->GetTriangleStride();
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = world->GetLightTriangleVec().data();
+
+		ThrowIfFailed(d3dDevice->CreateBuffer(&desc, &data, m_LightTriangleBuffer.GetAddressOf()));
+
+#if defined(_DEBUG)
+		m_LightTriangleBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("LightTriangles") - 1, "LightTriangles");
+#endif			
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.Buffer.FirstElement = 0;
+		srvDesc.Buffer.NumElements = world->GetLightTriangleVec().size();
+		ThrowIfFailed(d3dDevice->CreateShaderResourceView(m_LightTriangleBuffer.Get(), &srvDesc, m_LightTriangleSRV.GetAddressOf()));
 	}
 
 	//BVH

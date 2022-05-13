@@ -15,12 +15,15 @@ public:
 	void Tick(DWORD deltaTime);
 	void Render();
 
+	void ResetSampleCount() { m_iSampleCount = 0; }
+
 protected:
 	void CompileShadersAndSetLayout();
 	void CreateShaderResourse();
 	void CreateLayout(ComPtr<ID3D10Blob> vertexShaderBuffer,ComPtr<ID3D10Blob> pixelShaderBuffer);
 	void CreateVertexBuffer();
 	void CreateShaderSampler();
+	void CreateBlendState();
 	void CreateComputeShaderBuffer();
 
 protected:
@@ -33,6 +36,7 @@ protected:
 	ComPtr<ID3D11Buffer> m_VertexBuffer;
 
 	ComPtr<ID3D11SamplerState> m_SamplerWrap;
+	ComPtr<ID3D11BlendState> m_BlendTransparent;
 
 	ComPtr<ID3D11UnorderedAccessView> m_ResultTexUAV;
 	ComPtr<ID3D11ShaderResourceView> m_ResultTexSRV;
@@ -46,6 +50,12 @@ protected:
 	ComPtr<ID3D11Buffer> m_BVHBuffer;
 	ComPtr<ID3D11ShaderResourceView> m_BVHSRV;
 
+	ComPtr<ID3D11Buffer> m_LightTriangleBuffer;
+	ComPtr<ID3D11ShaderResourceView> m_LightTriangleSRV;
+
 	ComPtr<ID3D11Buffer> m_CSConstBuffer;
+
+protected:
+	unsigned int m_iSampleCount = 0;
 };
 
