@@ -124,10 +124,11 @@ void World::CreateMeshTriangle()
 	matLight.Albedo = Vec3(0.65f, 0.65f, 0.65f);
 	matLight.Emission = lightEm;
 
+	int trianglesCount = 0;
 	
 	MeshTriangle floor("floor.obj", Vec3(0,0,0), matWhite);
-	int trianglesCount = floor.GetTrianglesCount();
-
+	trianglesCount += floor.GetTrianglesCount();
+	
 	MeshTriangle shortbox("shortbox.obj", Vec3(0, 0, 0), matWhite);
 	trianglesCount += shortbox.GetTrianglesCount();
 	
@@ -136,10 +137,10 @@ void World::CreateMeshTriangle()
 	
 	MeshTriangle left("left.obj", Vec3(0, 0, 0), matRed);
 	trianglesCount += left.GetTrianglesCount();
-	
+
 	MeshTriangle right("right.obj", Vec3(0, 0, 0), matGreen);
 	trianglesCount += right.GetTrianglesCount();
-
+	
 	MeshTriangle light("light.obj", Vec3(0, 0, 0), matLight);
 	trianglesCount += light.GetTrianglesCount();
 
@@ -169,6 +170,7 @@ void World::AddTriangleToVec(MeshTriangle* pMesh)
 		if (triangle.Mat.Emission != Vec3::Zero)
 		{
 			m_VecLightTriangles.push_back(triangle);
+			printf("Light Triangle Index:%d \n", triangle.Index);
 		}
 	}
 }

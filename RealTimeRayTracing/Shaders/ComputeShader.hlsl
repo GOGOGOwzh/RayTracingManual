@@ -15,7 +15,7 @@ StructuredBuffer<Triangle> VecTriagles : register(t1);
 StructuredBuffer<BVHNode> VecBVH : register(t2);
 StructuredBuffer<Triangle> VecTriaglesLight : register(t3);
 
-#define MAX_SAMPLE_DEPTH 10
+#define MAX_SAMPLE_COUNT 2
 
 static uint LightTriangleIndex = 0;
 
@@ -38,9 +38,13 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
     
     float fraction = M_ININITY;
  
+    bool bTraceSphere = false;
+    bool bTraceTriangle = false;
+    bool bTraceBVH = false;
+    
     /*
     //Sphere
-    bool bTraceSphere = false;
+   
     Sphere sphere;
     uint sphereCount,stride,i;
     VecSpheres.GetDimensions(sphereCount, stride);
@@ -57,8 +61,8 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             GetObjectSurfaceProerty(sphere, traceInfo, traceInfo.HitNormal);
         }
     }
+    */
     
-    bool bTraceTriangle = false;
     uint triangleCount, triangleStride, j;
     VecTriagles.GetDimensions(triangleCount, triangleStride);
     
@@ -76,10 +80,9 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
         }
     }
-    */
-    //BVH
     
-    bool bTraceBVH = false;
+    /*
+    //BVH
     uint nodeCount, nodeStride, i;
     VecBVH.GetDimensions(nodeCount, nodeStride);
     BVHNode node;
@@ -115,24 +118,10 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             {
                 i = node.RightBrotherNodeIndex-1;
             }
-            /*
-            else
-            {
-                if (node.ParentNodeIndex != -1 && !IsLeafNode(node))
-                {
-                    BVHNode parentNode = VecBVH[node.ParentNodeIndex];
-                    if (parentNode.RightBrotherNodeIndex !=-1)
-                    {
-                        i = parentNode.RightBrotherNodeIndex - 1;
-                    }
-                }
-            }
-            */
-           
         }
     }
-    
-    traceInfo.BTraced = bTraceBVH;
+    */
+    traceInfo.BTraced = bTraceSphere || bTraceTriangle ||bTraceBVH;
 }
 
 bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
@@ -149,7 +138,7 @@ bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
             if (IsEmissionMat(hitMat))
             {
                 traceInfo.Radiance = hitMat.Emission;
-                return false;
+                return true;
             }
             
             float3 lightColorDir = float3(0, 0, 0);
@@ -192,10 +181,10 @@ bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
             if (testObjectTraceInfo.BTraced && !IsEmissionMat(testObjectTraceInfo.Mat))
             {
                 lightColorInDir = BRDF(hitMat, wi, wo, hitNor) * dot(wi, hitNor) / PDF(hitMat, wi, wo, hitNor);
-
             }
             
             traceInfo.Attenuation *= (lightColorDir + lightColorInDir);
+            traceInfo.Radiance += traceInfo.Attenuation;
             
             brdfDir = wi;
         }
@@ -209,10 +198,10 @@ bool ShadringHitPoint(inout Ray ray,inout TraceInfo traceInfo)
        // float t = 0.5 * (ray.Dir.y + 1.0);
        // float3 color = (1.0 - t) * float3(1.0, 1.0, 1.0) + t * float3(0.5, 0.7, 1.0);
         float3 color = float3(0, 0, 0);
-        traceInfo.Radiance = color;
+        traceInfo.Radiance += color;
     }
     
-    return false;
+    return true;
 }
 
 
@@ -227,21 +216,28 @@ void CS_main( uint3 DTid : SV_DispatchThreadID )
     
     uint randSeed = RandInit(DTid.x + DTid.y * dimensions.x, Timestamp);
     
-    float2 offset = float2(RandNext(randSeed), RandNext(randSeed));
-  
-    Ray ray = GenerateCamRay(pixel, offset, dimensions, CameraPos, VPInvert);
-  
-    TraceInfo traceInfo = InitTraceInfo();
-    traceInfo.Seed = randSeed;
-    
-    for (uint i = 0; i < MAX_SAMPLE_DEPTH;i++)
+   
+    float3 radiance = float3(0, 0, 0);
+    for (uint j = 0; j < MAX_SAMPLE_COUNT; j++)
     {
+        float2 offset = float2(RandNext(randSeed), RandNext(randSeed));
+  
+        Ray ray = GenerateCamRay(pixel, offset, dimensions, CameraPos, VPInvert);
+  
+        TraceInfo traceInfo = InitTraceInfo();
+        traceInfo.Seed = randSeed;
+        
         RayTrace(ray, traceInfo);
-        if (!ShadringHitPoint(ray,traceInfo))
+        if (!ShadringHitPoint(ray, traceInfo))
         {
             break;
         }
+        
+        randSeed = traceInfo.Seed;
+        
+        radiance += traceInfo.Radiance;
+
     }
-    float3 radiance = traceInfo.Radiance + traceInfo.Attenuation;
-    ResultTexture[DTid.xy] = float4(radiance, 1);
+
+    ResultTexture[DTid.xy] = float4(radiance / MAX_SAMPLE_COUNT, 1);
 }

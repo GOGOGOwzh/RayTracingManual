@@ -43,7 +43,7 @@ float4 PS_main(V2P i) : SV_TARGET
 {
     float3 color = ResultTexture.Sample(SamplerWrap, i.UV).rgb;
     
-   // color = LinearToSrgb(color);
    // color = ACESToneMapping(color, 1);
+   // color = LinearToSrgb(color);
     return float4(color, 1.0 / (SampleCount + 1.0));
 }

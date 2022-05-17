@@ -8,7 +8,7 @@ void Camera::Init()
 {
 	m_Width = GameApp::Instance().GetWidth();
 	m_Height = GameApp::Instance().GetHeight();
-	//m_NearPlane = m_Height * 0.5f / std::tanf(Degrees_to_Radians(m_Fov * 0.5));
+	m_NearPlane = m_Height * 0.5f / std::tanf(Degrees_to_Radians(m_Fov * 0.5));
 	//m_NearPlane = 0.1;
 }
 

@@ -41,7 +41,7 @@ void Renderer::Render()
 	//ÉèÖÃCBuffer
 	auto vpInvert = cameraClass->GetVPInvert();
 	auto cameraPos = cameraClass->GetCameraPosition();
-	CB cb = { vpInvert,cameraPos,m_iSampleCount,timestamp};
+	CB cb = { vpInvert,cameraPos,m_iSampleCount,m_iSampleCount };
 	d3dContext->UpdateSubresource(m_CSConstBuffer.Get(), 0, nullptr, &cb, 0, 0);
 	d3dContext->CSSetConstantBuffers(0, 1, m_CSConstBuffer.GetAddressOf());
 

@@ -375,13 +375,22 @@ int GetNodeRightBrotherNodeIndex(BVHNode node)
 
 void SampleTriangle(Triangle tri, inout float3 pos, inout float3 normal, inout float pdf, float kesi1, float kesi2)
 {
-    pos = (1.0f - kesi1) * tri.Point[0] + kesi2 * kesi1 * tri.Point[1] + kesi1 * (1.0f - kesi2) * tri.Point[2];
+    float sqrtKesi = sqrt(kesi1);
+    pos = (1.0f - sqrtKesi) * tri.Point[0] + kesi2 * sqrtKesi * tri.Point[1] + sqrtKesi * (1.0f - kesi2) * tri.Point[2];
+  
+    float3 vec1 = pos - tri.Point[0];
+    float3 vec2 = pos - tri.Point[1];
+    
+    float3 crs = cross(vec1, vec2);
+    crs = normalize(crs);
+    
     normal = tri.TriangleNormal;
+    //normal = crs;
     pdf = 1.0f / tri.Area;
 }
 
 
-Ray MakeRay(float3 dir,float3 pos)
+Ray MakeRay(float3 pos, float3 dir)
 {
     Ray ray;
     ray.Dir = dir;
