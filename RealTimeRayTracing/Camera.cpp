@@ -37,7 +37,8 @@ Vec3 Camera::GetCameraPosition()
 
 void Camera::UpdateProjectionMat()
 {
-	m_ProjectionMat = DirectX::XMMatrixPerspectiveFovRH(m_Fov, m_Width / m_Height, m_NearPlane, m_FarPlane);
+	//m_ProjectionMat = DirectX::XMMatrixPerspectiveFovRH(m_Fov, m_Width / m_Height, m_NearPlane, m_FarPlane);
+	m_ProjectionMat = DirectX::XMMatrixOrthographicRH(m_Width, m_Height, m_NearPlane, m_FarPlane);
 }
 
 void Camera::UpdateViewMat()

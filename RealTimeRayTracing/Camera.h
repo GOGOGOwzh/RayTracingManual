@@ -67,7 +67,7 @@ protected:
 	float m_Fov = 40.0f;
 
 	Vec3 m_Up = Vec3(0, 1, 0);
-	Vec3 m_Position = Vec3(278, 273, -110);
+	Vec3 m_Position = Vec3(278, 273, -800);
 	Vec3 m_Dir = Vec3(0, 0, 1);
 
 	Vec3 m_OrgUp = Vec3(0, 1, 0);

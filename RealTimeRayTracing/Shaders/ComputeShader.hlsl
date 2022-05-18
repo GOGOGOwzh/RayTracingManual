@@ -63,6 +63,7 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
     }
     */
     
+    /*
     uint triangleCount, triangleStride, j;
     VecTriagles.GetDimensions(triangleCount, triangleStride);
     
@@ -80,8 +81,9 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             GetObjectSurfaceProerty(trian, traceInfo, traceInfo.HitNormal);
         }
     }
+    */
     
-    /*
+    
     //BVH
     uint nodeCount, nodeStride, i;
     VecBVH.GetDimensions(nodeCount, nodeStride);
@@ -120,7 +122,7 @@ void RayTrace(Ray ray,inout TraceInfo traceInfo)
             }
         }
     }
-    */
+    
     traceInfo.BTraced = bTraceSphere || bTraceTriangle ||bTraceBVH;
 }
 
