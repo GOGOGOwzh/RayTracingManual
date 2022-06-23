@@ -162,6 +162,7 @@ Ray GenerateCamRay(uint2 pixel,float2 offset,float2 dimensions,float3 camPos,flo
     float4 worldPos = mul(vpInvert, float4(screenPos, 0, 1));
     
     //这里一定要在除以W
+    //操！感觉不除也行。。。
     //https://feepingcreature.github.io/math.html
     worldPos.xyz /= worldPos.w;
     

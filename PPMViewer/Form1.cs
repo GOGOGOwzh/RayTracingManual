@@ -21,7 +21,7 @@ namespace PPMViewer
         private void Form1_Load(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
-            file.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            file.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalizedResources);
             file.Filter = "(ppm文件)*.ppm|*.ppm";
             file.Title = "请选择图像";
             if (file.ShowDialog() == DialogResult.OK)
@@ -29,6 +29,12 @@ namespace PPMViewer
                 FileStream fs = new FileStream(file.FileName, FileMode.Open);
                 StreamReader sr = new StreamReader(fs);
                 string format = sr.ReadLine();
+                format = format.ToLower();
+                if (format != "p3")
+                {
+                    MessageBox.Show("目前只支持P3格式PPM！请输出P3格式PPM");
+                    return;
+                }
                 string size = sr.ReadLine();
                 string colorSize = sr.ReadLine();
 
@@ -38,7 +44,7 @@ namespace PPMViewer
 
                 this.MinimumSize = new Size(width, hight);
 
-                Bitmap bitmap = new Bitmap(width, hight);//创建ppm相对应大小得bitmao
+                Bitmap bitmap = new Bitmap(width, hight);
                 for (int i = 0; i < hight; i++)
                 {
                     for (int j = 0; j < width; j++)
@@ -46,10 +52,9 @@ namespace PPMViewer
                         string colorLine = sr.ReadLine();
                         string[] pixels = colorLine.Split(' ');
                         bitmap.SetPixel(j, i, Color.FromArgb(int.Parse(pixels[0]), int.Parse(pixels[1]), int.Parse(pixels[2])));
-                        //将RGB赋给bitmap（j，i）；
                     }
                 }
-                this.BackgroundImage = bitmap;//设置本窗体的背景图片为所取得bitmap
+                this.BackgroundImage = bitmap;
                 this.BackgroundImageLayout = ImageLayout.Stretch;
             }
         }

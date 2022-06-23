@@ -94,17 +94,21 @@ void Renderer::CompileShadersAndSetLayout()
 	const WCHAR* vertextShaderFilePath = L"Shaders\\VertexShader.hlsl";
 	const WCHAR* pixelShaderFilePath   = L"Shaders\\PixelShader.hlsl";
 
+	const WCHAR* computeShaderFilePathCSO = L"Shaders\\ComputeShader.cso";
+	const WCHAR* vertextShaderFilePathCSO = L"Shaders\\VertexShader.cso";
+	const WCHAR* pixelShaderFilePathCSO = L"Shaders\\PixelShader.cso";
+
 	ComPtr<ID3D10Blob> computeShaderBuffer;
 	ComPtr<ID3D10Blob> vertexShaderBuffer;
 	ComPtr<ID3D10Blob> pixelShaderBuffer;
 
-	ThrowIfFailed(CreateShaderFromFile(nullptr, computeShaderFilePath, "CS_main", "cs_5_0", computeShaderBuffer.GetAddressOf()));
+	ThrowIfFailed(CreateShaderFromFile(computeShaderFilePathCSO, computeShaderFilePath, "CS_main", "cs_5_0", computeShaderBuffer.GetAddressOf()));
 	ThrowIfFailed(d3dDevice->CreateComputeShader(computeShaderBuffer->GetBufferPointer(), computeShaderBuffer->GetBufferSize(), nullptr, m_ComputerShader.GetAddressOf()));
 
-	ThrowIfFailed(CreateShaderFromFile(nullptr, vertextShaderFilePath, "VS_main", "vs_5_0", vertexShaderBuffer.GetAddressOf()));
+	ThrowIfFailed(CreateShaderFromFile(vertextShaderFilePathCSO, vertextShaderFilePath, "VS_main", "vs_5_0", vertexShaderBuffer.GetAddressOf()));
 	ThrowIfFailed(d3dDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),vertexShaderBuffer->GetBufferSize(),nullptr,m_VertextShader.GetAddressOf()));
 
-	ThrowIfFailed(CreateShaderFromFile(nullptr, pixelShaderFilePath, "PS_main", "ps_5_0", pixelShaderBuffer.GetAddressOf()));
+	ThrowIfFailed(CreateShaderFromFile(pixelShaderFilePathCSO, pixelShaderFilePath, "PS_main", "ps_5_0", pixelShaderBuffer.GetAddressOf()));
 	ThrowIfFailed(d3dDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), nullptr, m_PixelShader.GetAddressOf()));
 
 	CreateLayout(vertexShaderBuffer, pixelShaderBuffer);
